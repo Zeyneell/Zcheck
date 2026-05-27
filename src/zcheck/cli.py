@@ -258,17 +258,13 @@ def interactive() -> None:
                 console.print()
                 _hint(
                     "Type the full email address. Example: someone@example.com",
-                    "Mode is 'both' (email oracles + username sweep across 700+ sites).",
-                    "Adult sites are off unless you opt in below.",
+                    "Full scan, no questions: email oracles + username sweep across 730+ sites,",
+                    "adult sites included. (For finer control use the command line: zcheck scan ...)",
                 )
                 email = Prompt.ask("[label]email[/]")
-                mode = Prompt.ask(
-                    "[muted]mode[/]", choices=list(_VALID_MODES), default="both"
-                )
-                nsfw = Prompt.ask("[muted]include adult sites? y/N[/]", default="N").lower().startswith("y")
                 section(f"scan · {email}")
                 _run_scan(
-                    email, mode=mode, username=None, only=None, cats=None, nsfw=nsfw,
+                    email, mode="both", username=None, only=None, cats=None, nsfw=True,
                     concurrency=50, timeout=10.0, canary=True,
                 )
 
