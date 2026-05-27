@@ -74,7 +74,8 @@ def _run_scan(
     csv_out: Optional[Path] = None,
 ) -> None:
     _ensure_loaded()
-    if not _valid_email(email):
+    # In username-only mode the target is a bare handle, not an email.
+    if mode != "username" and not _valid_email(email):
         console.print(f"  [err]![/] '{email}' is not a valid email address.")
         return
     selected = registry.select(mode=mode, only=only, categories=cats, nsfw=nsfw)  # type: ignore[arg-type]
@@ -133,7 +134,7 @@ def main(
 
 @app.command()
 def scan(
-    email: str = typer.Argument(..., help="Email address to investigate."),
+    email: str = typer.Argument(..., help="Email address — or a bare username to sweep directly."),
     mode: str = typer.Option("both", "--mode", "-m", help="email | username | both."),
     username: Optional[str] = typer.Option(
         None, "--username", "-u", help="Override the username guessed from the email."
@@ -150,6 +151,11 @@ def scan(
     """Find which sites an email is registered on."""
     if mode not in _VALID_MODES:
         raise typer.BadParameter(f"mode must be one of {_VALID_MODES}")
+    # Auto-route: a bare handle (no '@') can only be swept as a username.
+    if "@" not in email:
+        if mode == "email":
+            raise typer.BadParameter("--mode email needs an email address, not a bare username.")
+        mode = "username"
     render_banner()
     section(f"scan · {email}")
     _run_scan(
@@ -262,14 +268,16 @@ def interactive() -> None:
             elif choice == "1":
                 console.print()
                 _hint(
-                    "Type the full email address. Example: someone@example.com",
-                    "Full scan, no questions: email oracles + username sweep across 730+ sites,",
-                    "adult sites included. (For finer control use the command line: zcheck scan ...)",
+                    "Type an email OR a username — it auto-detects:",
+                    "  someone@example.com  → email oracles + username sweep across 730+ sites",
+                    "  someusername         → username sweep on that handle",
+                    "Adult sites included. (For finer control: zcheck scan ... on the command line.)",
                 )
-                email = Prompt.ask("[label]email[/]")
-                section(f"scan · {email}")
+                target = Prompt.ask("[label]email or username[/]")
+                mode = "both" if "@" in target else "username"
+                section(f"scan · {target}")
                 _run_scan(
-                    email, mode="both", username=None, only=None, cats=None, nsfw=True,
+                    target, mode=mode, username=None, only=None, cats=None, nsfw=True,
                     concurrency=50, timeout=10.0, canary=True,
                 )
 
