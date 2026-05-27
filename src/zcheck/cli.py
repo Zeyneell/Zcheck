@@ -14,7 +14,7 @@ from rich.table import Table
 from . import __version__, sites
 from .core import datafiles, registry, runner
 from .core.console import console, render_banner, render_doctor, render_scan, section
-from .core.models import ScanResult
+from .core.models import Existence, ScanResult
 from .export import csv_export, json_export
 
 app = typer.Typer(
@@ -93,8 +93,13 @@ def _run_scan(
     ) as progress:
         task = progress.add_task(f"probing {total} sites", total=total)
 
-        def _tick(_r) -> None:
+        def _tick(r) -> None:
             progress.advance(task)
+            # Show hits live (above the bar). These are preliminary — the canary
+            # re-validates them once the sweep finishes; the final table is truth.
+            if r.existence is Existence.FOUND:
+                target = r.extra.get("profile_url") or r.domain
+                progress.console.print(f"  [ok]✓ found[/] [label]{r.site}[/]  [muted]{target}[/]")
 
         scan = asyncio.run(
             runner.scan(
