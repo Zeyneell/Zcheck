@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zcheck"
+version = "0.1.0"
+description = "Async email-OSINT account checker — tells you which sites an email address is registered on, holehe-style, with a rich CLI and JSON/CSV export."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Zeyneell" }]
+license = { text = "MIT" }
+keywords = ["osint", "email", "holehe", "recon", "account", "enumeration", "pentest"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "httpx[http2]>=0.27",
+    "typer>=0.12",
+    "rich>=13.7",
+    "pydantic>=2.6",
+    "email-validator>=2.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.21", "ruff>=0.4"]
+
+[project.scripts]
+zcheck = "zcheck.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/Zeyneell/Zcheck"
+Issues = "https://github.com/Zeyneell/Zcheck/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"zcheck" = ["data/*.json"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

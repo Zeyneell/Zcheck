@@ -1,0 +1,13 @@
+# Normalize line endings: LF in the repo, so CI (Linux) and editors agree.
+* text=auto eol=lf
+
+# Windows launcher must stay CRLF to run correctly.
+*.bat text eol=crlf
+
+# Datasets are LF text.
+*.json text eol=lf
+
+# Treat these as binary if ever added.
+*.png binary
+*.jpg binary
+*.ico binary

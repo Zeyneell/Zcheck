@@ -1,0 +1,20 @@
+{
+  "_about": "Curated email-oracle definitions for Zcheck. These probe a site's signup/reset 'is this email taken?' endpoint. Schema is documented in CONTRIBUTING.md. This set is intentionally small and high-confidence: breadth (400+) comes from the username dataset, and every positive here is still re-validated against a canary at runtime.",
+  "version": "2026.05.27",
+  "sites": [
+    {
+      "name": "spotify",
+      "domain": "spotify.com",
+      "category": "music",
+      "request": {
+        "method": "GET",
+        "url": "https://spclient.wg.spotify.com/signup/public/v1/account?validate=1&email={email_enc}",
+        "headers": { "User-Agent": "{ua}" }
+      },
+      "rules": {
+        "found": [{ "json": "status", "equals": 20 }],
+        "not_found": [{ "json": "status", "equals": 1 }]
+      }
+    }
+  ]
+}
